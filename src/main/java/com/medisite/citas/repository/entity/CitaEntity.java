@@ -3,6 +3,7 @@ package com.medisite.citas.repository.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.sql.Date;
 import java.sql.Time;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name="cita")
 public class CitaEntity {
@@ -25,7 +27,10 @@ public class CitaEntity {
     @Column(name="id_medico")
     private long idMedico;
 
-    @Column(name="hora")
-    private LocalDateTime hora;
+    @Column(name="hora_inicio")
+    private LocalDateTime horaInicio;
+
+    @Column(name="hora_fin")
+    private LocalDateTime horaFin;
 
 }

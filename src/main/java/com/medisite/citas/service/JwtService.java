@@ -3,7 +3,6 @@ package com.medisite.citas.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -39,7 +38,23 @@ public class JwtService {
         return extractExpirationDate(token).before(new Date());
     }
 
-    public boolean validateToken(String token, UserDetails userDetails){
-        return (userDetails.getUsername().equals(extractUsername(token))) && !isTokenExpired(token);
+    public boolean validateIdInToken(String token, long id){
+        Claims claims = extractAllClaims(token);
+        return (((Number) claims.get("id")).longValue() == (id));
+    }
+
+    public boolean isPaciente(String token){
+        Claims claims = extractAllClaims(token);
+        return (((String) claims.get("role")).equals("paciente"));
+    }
+
+    public boolean isAdmin(String token){
+        Claims claims = extractAllClaims(token);
+        return (((String) claims.get("role")).equals("admin"));
+    }
+
+    public boolean isMedico(String token) {
+        Claims claims = extractAllClaims(token);
+        return (((String) claims.get("role")).equals("medico"));
     }
 }

@@ -17,8 +17,11 @@ public class CustomizedCitasRepositoryImpl implements CustomizedCitasRepository 
 
     @Override
     public List<CitaEntity> getCitasByPacienteIdInTimeRange(long id_paciente, TimeRangeRequest request) {
-        return em.createQuery("SELECT c FROM cita c WHERE c.id_paciente = :id_paciente AND " +
-                        "c.hora BETWEEN :horaInicio AND :horaFin").
+        return em.createQuery("SELECT c FROM CitaEntity c WHERE c.idPaciente = :id_paciente AND " +
+                        "(c.horaInicio BETWEEN :horaInicio AND :horaFin " +
+                        "OR c.horaFin BETWEEN :horaInicio AND :horaFin " +
+                        "OR c.horaInicio < :horaInicio AND c.horaFin > :horaFin)" +
+                        "ORDER BY c.horaInicio ASC", CitaEntity.class).
                 setParameter("id_paciente", id_paciente).
                 setParameter("horaInicio", request.getTiempoInicio()).
                 setParameter("horaFin", request.getTiempoFin()).
@@ -29,16 +32,21 @@ public class CustomizedCitasRepositoryImpl implements CustomizedCitasRepository 
     public boolean checkCita(CitaEntity request){
         long id_paciente = request.getIdPaciente();
         long id_medico = request.getIdMedico();
-        LocalDateTime tiempo_inicio = request.getTiempoInicio();
-        LocalDateTime tiempo_fin = request.getTiempoFin();
-        List<CitaEntity> overlaped_citas = em.createQuery("SELECT c FROM cita c WHERE c.id_paciente = :id_paciente OR id_medico = :id_medico" +
-                        "AND c.hora BETWEEN :horaInicio AND :horaFin").
-                setParameter("id_paciente", id_paciente).
-                setParameter("id_medico", id_medico).
-                setParameter("horaInicio", tiempo_inicio).
-                setParameter("horaFin", tiempo_fin).
-                getResultList();
-        if(overlaped_citas.size() == 0) return false;
-        else return true;
+        LocalDateTime tiempo_inicio = request.getHoraInicio();
+        LocalDateTime tiempo_fin = request.getHoraFin();
+
+        List<CitaEntity> overlapped_citas = em.createQuery(
+                        "SELECT c FROM CitaEntity c WHERE (c.idPaciente = :id_paciente OR c.idMedico = :id_medico) " +
+                                "AND (c.horaInicio BETWEEN :horaInicio AND :horaFin " +
+                                "OR c.horaFin BETWEEN :horaInicio AND :horaFin " +
+                                "OR (c.horaInicio < :horaInicio AND c.horaFin > :horaFin))",
+                        CitaEntity.class)
+                .setParameter("id_paciente", id_paciente)
+                .setParameter("id_medico", id_medico)
+                .setParameter("horaInicio", tiempo_inicio)
+                .setParameter("horaFin", tiempo_fin)
+                .getResultList();
+
+        return overlapped_citas.isEmpty();
     }
 }
