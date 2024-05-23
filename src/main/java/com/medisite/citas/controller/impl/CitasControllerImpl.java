@@ -1,6 +1,7 @@
 package com.medisite.citas.controller.impl;
 
 import com.medisite.citas.controller.CitasController;
+import com.medisite.citas.model.TimeRangeRequest;
 import com.medisite.citas.repository.entity.CitaEntity;
 import com.medisite.citas.service.CitasService;
 import com.medisite.citas.service.JwtService;
@@ -8,6 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class CitasControllerImpl implements CitasController {
@@ -78,6 +81,22 @@ public class CitasControllerImpl implements CitasController {
                 || jwtService.isAdmin(token)){
             citaEntity.setIdCita(id_cita);
             return ResponseEntity.ok().body(citasService.updateCita(citaEntity));
+        }
+        return ResponseEntity.status(403).body("not authorized");
+    }
+
+    @Override
+    public ResponseEntity<?> getCitasByPacienteIdInTimeRange(HttpServletRequest request,
+                                                             @PathVariable long id_paciente,
+                                                             @RequestBody TimeRangeRequest timeRequest){
+        String bearerToken = request.getHeader("Authorization");
+        if(!bearerToken.startsWith("Bearer ")){
+            return ResponseEntity.status(403).body("not authorized");
+        }
+        String token = bearerToken.substring(7);
+        if((jwtService.isPaciente(token) && jwtService.validateIdInToken(token, id_paciente))
+                || jwtService.isAdmin(token)){
+            return ResponseEntity.ok().body(citasService.getCitasByPacienteIdInTimeRange(id_paciente, timeRequest));
         }
         return ResponseEntity.status(403).body("not authorized");
     }

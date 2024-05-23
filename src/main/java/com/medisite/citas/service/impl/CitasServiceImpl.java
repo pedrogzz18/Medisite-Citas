@@ -1,5 +1,6 @@
 package com.medisite.citas.service.impl;
 
+import com.medisite.citas.model.TimeRangeRequest;
 import com.medisite.citas.repository.CitasRepository;
 import com.medisite.citas.repository.entity.CitaEntity;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.medisite.citas.service.CitasService;
+
+import java.util.List;
 
 @Service
 public class CitasServiceImpl implements CitasService {
@@ -31,5 +34,10 @@ public class CitasServiceImpl implements CitasService {
     @Override
     public CitaEntity updateCita(CitaEntity citaEntity){
         return citasRepository.save(citaEntity);
+    }
+
+    @Override
+    public List<CitaEntity> getCitasByPacienteIdInTimeRange(long id_paciente, TimeRangeRequest request){
+        return citasRepository.getCitasByPacienteIdInTimeRange(id_paciente, request);
     }
 }
