@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.medisite.citas.service.CitasService;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 
@@ -32,8 +33,9 @@ public class CitasServiceImpl implements CitasService {
     }
 
     @Override
-    public CitaEntity updateCita(CitaEntity citaEntity){
-        return citasRepository.save(citaEntity);
+    public CitaEntity updateCita(CitaEntity citaEntity) throws HttpClientErrorException.NotAcceptable {
+        if(citasRepository.checkCita(citaEntity)) return citasRepository.save(citaEntity);
+        else return null;
     }
 
     @Override

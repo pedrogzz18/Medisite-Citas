@@ -80,7 +80,9 @@ public class CitasControllerImpl implements CitasController {
         if((jwtService.isPaciente(token) && jwtService.validateIdInToken(token, cita.getIdPaciente()))
                 || jwtService.isAdmin(token)){
             citaEntity.setIdCita(id_cita);
-            return ResponseEntity.ok().body(citasService.updateCita(citaEntity));
+            CitaEntity updatedCita = citasService.updateCita(citaEntity);
+            if(updatedCita == null) return ResponseEntity.ok().body(citasService.updateCita(citaEntity));
+            else return ResponseEntity.internalServerError().body("Horario no disponible");
         }
         return ResponseEntity.status(403).body("not authorized");
     }
