@@ -40,7 +40,7 @@ public class JwtService {
 
     public boolean validateIdInToken(String token, long id){
         Claims claims = extractAllClaims(token);
-        return (((Number) claims.get("id")).longValue() == (id));
+        return ((((Number) claims.get("id")).longValue() == (id) )&& !isTokenExpired(token));
     }
 
     public boolean isPaciente(String token){
